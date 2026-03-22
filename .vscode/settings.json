@@ -1,0 +1,8 @@
+{
+  "python.defaultInterpreterPath": "C:\\Users\\amanbatra\\AppData\\Local\\Programs\\Python\\Python313\\python.exe",
+  "python.analysis.typeCheckingMode": "off",
+  "python.analysis.ignore": ["**"],
+  "python.analysis.diagnosticMode": "openFilesOnly",
+  "python.analysis.reportMissingImports": "none",
+  "python.analysis.reportMissingModuleSource": "none"
+}

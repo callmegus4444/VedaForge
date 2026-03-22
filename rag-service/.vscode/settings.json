@@ -1,0 +1,6 @@
+{
+  "python.defaultInterpreterPath": "C:\\Users\\amanbatra\\AppData\\Local\\Programs\\Python\\Python313\\python.exe",
+  "python.analysis.typeCheckingMode": "off",
+  "pyre.typeCheckingMode": "off",
+  "pylsp.plugins.pyre.enabled": false
+}

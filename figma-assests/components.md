@@ -1,0 +1,5 @@
+- **Centered Empty State Illustration**: A complex visual grouping featuring a document with a red cross, a magnifying glass, and decorative abstract shapes (stars/swirls), often with a light circular background gradient.
+- **Pill-Shaped Action Button**: Primary buttons are consistently black (#000000) with extremely high corner radius (pill shape), housing white text and occasionally a leading icon (+).
+- **Informational Text Stack**: A bold header component (e.g., "No assignments yet") followed by a centered, lighter-weight description paragraph for empty states.
+- **Form Layout (Estimated)**: Clean, center-aligned layout for empty state guidance and primary setup steps.
+- **Sidebar (Typical for MyVeda)**: A left-aligned navigation bar with iconic labels and a slight border or subtle background separator.

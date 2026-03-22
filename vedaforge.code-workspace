@@ -1,0 +1,24 @@
+{
+  "folders": [
+    {
+      "path": "."
+    }
+  ],
+  "extensions": {
+    "recommendations": [
+      "ms-python.python",
+      "ms-python.vscode-pylance"
+    ],
+    "unwantedRecommendations": [
+      "meta-platforms.pyre"
+    ]
+  },
+  "settings": {
+    "python.defaultInterpreterPath": "C:\\Users\\amanbatra\\AppData\\Local\\Programs\\Python\\Python313\\python.exe",
+    "python.analysis.typeCheckingMode": "off",
+    "python.analysis.ignore": ["**/*"],
+    "[python]": {
+      "editor.defaultFormatter": "ms-python.python"
+    }
+  }
+}

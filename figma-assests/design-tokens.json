@@ -1,0 +1,46 @@
+{
+  "colors": {
+    "primary": "#FF8A00",
+    "background": {
+      "main": "#F9FAFB",
+      "card": "#FFFFFF",
+      "accent": "#F2F2F2"
+    },
+    "text": {
+      "primary": "#111827",
+      "secondary": "#4B5563",
+      "inverse": "#FFFFFF"
+    },
+    "button": {
+      "bg": "#000000",
+      "text": "#FFFFFF",
+      "hover": "#1F2937"
+    },
+    "border": "#E5E7EB"
+  },
+  "fonts": {
+    "family": "Inter, Lexend, 'Plus Jakarta Sans', sans-serif",
+    "weights": {
+      "regular": 400,
+      "medium": 500,
+      "bold": 700
+    }
+  },
+  "borderRadius": {
+    "button": "9999px",
+    "card": "16px",
+    "input": "8px"
+  },
+  "shadows": {
+    "soft": "0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06)",
+    "medium": "0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)"
+  },
+  "animations": {
+    "click_burst": {
+      "type": "custom-rays",
+      "color": "black",
+      "count": 4,
+      "behavior": "smooth-burst"
+    }
+  }
+}
