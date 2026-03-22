@@ -44,6 +44,76 @@ segments:
 - Real-time generation via WebSocket
 - Mobile responsive
 
+## How the LLM Pipeline Works
+Teacher uploads PDF
+↓
+RAG Service (Python/Flask port 5001)
+pypdf extracts text page by page
+Text chunked into 800-word segments
+Top chunks selected (20,000 chars max)
+↓
+Prompt Builder (TypeScript)
+Document content injected first
+Question config appended
+Strict JSON schema enforced
+↓
+Groq API (llama-3.3-70b-versatile)
+temperature: 0.2 (deterministic)
+response_format: json_object
+max_tokens: 3000
+↓
+Response Parser (TypeScript)
+Validates JSON structure
+Checks question counts
+Ensures difficulty distribution
+↓
+MongoDB — GeneratedPaper saved
+↓
+WebSocket event → Frontend
+↓
+Question Paper renders
+Teacher downloads PDF
+
+## System Architecture
+┌─────────────────────────────────────────────────────┐
+│                    FRONTEND                         │
+│  Next.js 16 + TypeScript + Zustand                 │
+│  /assignments → /create → /generating → /paper     │
+│  WebSocket client (socket.io-client)               │
+└──────────────────┬──────────────────────────────────┘
+│ HTTP + WebSocket
+┌──────────────────▼──────────────────────────────────┐
+│                    BACKEND                          │
+│  Node.js + Express + TypeScript (port 4000)        │
+│  REST API: /api/assignments /api/upload            │
+│  WebSocket Server: socket.io                       │
+│  BullMQ Queue: assignment-generation               │
+└──────┬────────────────────┬───────────────────────┘
+│                    │
+┌──────▼──────┐    ┌────────▼────────┐
+│   MongoDB   │    │  Redis Cloud    │
+│   Atlas     │    │  Job Queue      │
+│ Assignments │    │  + Cache        │
+│ Papers      │    └────────┬────────┘
+└─────────────┘             │
+┌────────▼────────┐
+│  BullMQ Worker  │
+│  (separate      │
+│   process)      │
+└────────┬────────┘
+│
+┌─────────────▼──────────────┐
+│      RAG Service           │
+│  Python Flask port 5001    │
+│  pypdf → chunk → context  │
+└─────────────┬──────────────┘
+│
+┌─────────────▼──────────────┐
+│      Groq / Gemini /       │
+│      OpenAI API            │
+│  Structured JSON output    │
+└────────────────────────────┘
+
 ## Agent System (Built with Antigravity)
 
 This project was built using a multi-agent system:
@@ -79,8 +149,7 @@ This project was built using a multi-agent system:
 
 ### Environment Variables
 
-Create \`vedaforge/backend/.env\`:
-\`\`\`env
+Create vedaforge/backend/.env:
 MONGODB_URI=your_mongodb_uri
 REDIS_URL=your_redis_url
 GROQ_API_KEY=your_groq_key
@@ -88,73 +157,6 @@ GROQ_MODEL=llama-3.3-70b-versatile
 PORT=4000
 FRONTEND_URL=http://localhost:3000
 ACTIVE_LLM=groq
-\`\`\`
 
-Create \`vedaforge/frontend/.env.local\`:
-\`\`\`env
-NEXT_PUBLIC_BACKEND_URL=http://localhost:4000
-\`\`\`
-
-### Run Locally
-
-Open 4 terminals:
-
-Terminal 1 — RAG Service:
-\`\`\`bash
-cd vedaforge/rag-service
-pip install flask pypdf
-python app.py
-\`\`\`
-
-Terminal 2 — Backend API:
-\`\`\`bash
-cd vedaforge/backend
-npm install
-npm run dev
-\`\`\`
-
-Terminal 3 — BullMQ Worker:
-\`\`\`bash
-cd vedaforge/backend
-npm run worker
-\`\`\`
-
-Terminal 4 — Frontend:
-\`\`\`bash
-cd vedaforge/frontend
-npm install
-npm run dev
-\`\`\`
-
-Open http://localhost:3000
-
-## How to Use
-
-1. Click **Create Assignment**
-2. Upload a PDF of your chapter (optional)
-3. Set due date
-4. Add question types: MCQ, Short Answer, etc.
-5. Set number of questions and marks per type
-6. Add any formatting instructions
-7. Click **Next** — paper generates in 10-20 seconds
-8. View the formatted paper
-9. Click **Download as PDF**
-
-## Time to Build
-
-> This entire full-stack application — frontend, backend, 
-> AI pipeline, RAG service, real-time WebSocket system, 
-> PDF export, and mobile responsive UI — was built in:
->
-> ## ⏱️ 6 hours, 12 minutes, 11 seconds, and 92 milliseconds
-
-## License
-
-MIT — free to use and modify.
-
----
-
-*Built for the VedaAI Full Stack Engineering Assignment*
-*Role: Full Stack Engineer*
-
----
+or can use any other llm model just paste teh api key  
+this should be mentioned in the read me file
