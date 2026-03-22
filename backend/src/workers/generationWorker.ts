@@ -30,77 +30,7 @@ function withTimeout<T>(promise: Promise<T>, ms: number, label: string): Promise
   });
 }
 
-// ── Fallback paper generator (uses topic only, no AI) ─────────────────────
-function generateFallbackPaper(data: JobData): any {
-  const { questionTypes, instructions } = data;
-  const topic = instructions || 'General Knowledge';
-  const totalMarks = questionTypes.reduce((s, q) => s + (q.count * q.marks), 0);
-  const sectionLabels = ['A', 'B', 'C', 'D', 'E', 'F'];
-  let questionNumber = 1;
 
-  const sections = questionTypes.map((qt, idx) => {
-    const questions = [];
-    for (let i = 0; i < qt.count; i++) {
-      const difficulty = i < Math.ceil(qt.count * 0.4) ? 'easy'
-        : i < Math.ceil(qt.count * 0.8) ? 'moderate' : 'hard';
-      const diffLabel = difficulty.charAt(0).toUpperCase() + difficulty.slice(1);
-
-      if (qt.type.toLowerCase().includes('multiple choice')) {
-        questions.push({
-          number: questionNumber,
-          text: `[${diffLabel}] Define a key concept related to ${topic}.`,
-          options: ['Option A', 'Option B', 'Option C', 'Option D'],
-          correctOption: 'a',
-          difficulty,
-          marks: qt.marks,
-        });
-      } else {
-        questions.push({
-          number: questionNumber,
-          text: `[${diffLabel}] Explain an important aspect of ${topic}.`,
-          options: null,
-          correctOption: null,
-          modelAnswer: `A comprehensive answer about ${topic}.`,
-          difficulty,
-          marks: qt.marks,
-        });
-      }
-      questionNumber++;
-    }
-
-    return {
-      title: `Section ${sectionLabels[idx] || (idx + 1)}`,
-      type: qt.type,
-      instruction: `Attempt all questions. Each question carries ${qt.marks} mark(s).`,
-      questions,
-    };
-  });
-
-  const answerKey = sections.flatMap((s: any) =>
-    s.questions.map((q: any) => ({
-      questionNumber: q.number,
-      answer: q.correctOption || q.modelAnswer || 'Refer to your study material.',
-    }))
-  );
-
-  return {
-    paperMeta: {
-      schoolName: 'VedaForge Academy',
-      subject: topic,
-      class: 'General',
-      timeAllowed: '45 minutes',
-      totalMarks,
-      totalQuestions: questionNumber - 1,
-      instructions: [
-        'All questions are compulsory.',
-        'Marks are indicated against each question.',
-        'Read all questions carefully.',
-      ],
-    },
-    sections,
-    answerKey,
-  };
-}
 
 // ── The worker ────────────────────────────────────────────────────────────
 export const generationWorker = new Worker<JobData>(
@@ -125,35 +55,8 @@ export const generationWorker = new Worker<JobData>(
       return result;
     } catch (masterErr: any) {
       console.error('[WORKER] MASTER ERROR:', masterErr.message);
-      console.log('[WORKER] Generating fallback paper...');
-
-      try {
-        // Generate fallback paper
-        const fallback = generateFallbackPaper(job.data);
-
-        await GeneratedPaper.deleteOne({ assignmentId: job.data.assignmentId });
-        const saved = await GeneratedPaper.create({
-          assignmentId: job.data.assignmentId,
-          ...fallback,
-          paperMeta: {
-            schoolName: (job.data as any).schoolName || 'VedaForge Academy',
-            ...fallback.paperMeta,
-          },
-          generatedAt: new Date(),
-        });
-
-        await Assignment.findByIdAndUpdate(job.data.assignmentId, { status: 'done' });
-        console.log('[WORKER] Fallback paper saved, ID:', saved._id);
-
-        try { notifyDone(job.data.assignmentId); } catch { /* non-fatal */ }
-
-        console.log('[WORKER] ========== JOB DONE (FALLBACK) ==========\n');
-        return { success: true, paperId: saved._id, fallback: true };
-      } catch (fallbackErr: any) {
-        console.error('[WORKER] FALLBACK ALSO FAILED:', fallbackErr.message);
-        await Assignment.findByIdAndUpdate(job.data.assignmentId, { status: 'error' });
-        throw fallbackErr;
-      }
+      await Assignment.findByIdAndUpdate(job.data.assignmentId, { status: 'error' });
+      throw masterErr;
     }
   },
   {

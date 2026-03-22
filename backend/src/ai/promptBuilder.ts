@@ -26,9 +26,9 @@ Do not make up facts not present in the document.
 `
     : `TOPIC: ${instructions}`
 
-  return `You are an expert professional exam paper generator.
+  return `${documentSection}
 
-${documentSection}
+You are an expert professional exam paper generator.
 
 EXACT QUESTION CONFIGURATION — FOLLOW PRECISELY:
 ${sectionConfig}
