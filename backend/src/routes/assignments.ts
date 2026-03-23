@@ -84,7 +84,7 @@ router.get('/:id', async (req: Request, res: Response) => {
       return;
     }
 
-    const paper = await GeneratedPaper.findOne({ assignmentId: req.params.id }).lean();
+    const paper = await (GeneratedPaper as any).findOne({ assignmentId: req.params.id }).lean();
     res.json({ assignment, paper: paper ?? null });
   } catch (err: unknown) {
     const msg = err instanceof Error ? err.message : 'Internal server error';

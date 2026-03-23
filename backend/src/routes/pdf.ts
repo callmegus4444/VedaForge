@@ -18,7 +18,7 @@ router.post('/:id/pdf', async (req: Request, res: Response) => {
     // Get paper data (cache first)
     let rawPaper = await getCachedPaper(req.params.id as string);
     if (!rawPaper) {
-      rawPaper = await GeneratedPaper.findOne({ assignmentId: req.params.id }).lean() as object;
+      rawPaper = await (GeneratedPaper as any).findOne({ assignmentId: req.params.id }).lean() as object;
     }
     if (!rawPaper) {
       res.status(404).json({ success: false, error: 'Paper not generated yet' });
