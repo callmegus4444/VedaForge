@@ -23,6 +23,10 @@
 
 <br/>
 
+[![Live Demo](https://img.shields.io/badge/🚀_Live_Demo-vedaforge.netlify.app-00C7B7?style=for-the-badge&logo=netlify&logoColor=white)](https://vedaforge.netlify.app)
+
+<br/>
+
 > ### ⏱️ Built in `6 hours` · `12 minutes` · `11 seconds` · `92 milliseconds`
 > *Full-stack app · AI pipeline · RAG service · WebSocket · PDF export · Mobile responsive*
 
@@ -98,7 +102,7 @@ VedaForge generates questions **directly from your uploaded document** using a R
 ║              │                                                   ║
 ║              ▼                                                   ║
 ║   ┌─────────────────────────────────────────┐                   ║
-║   │         RAG SERVICE  (Python :5001)     │                   ║
+║   │         RAG SERVICE  (Python / Render)  │                   ║
 ║   │                                         │                   ║
 ║   │  Step 1 ── pypdf reads every page       │                   ║
 ║   │  Step 2 ── Text split into 800-word     │                   ║
@@ -159,63 +163,149 @@ VedaForge generates questions **directly from your uploaded document** using a R
 ## 🏗️ System Architecture
 
 ```
-╔══════════════════════════════════════════════════════════════════╗
-║                    SYSTEM ARCHITECTURE                          ║
-╠══════════════════════════════════════════════════════════════════╣
-║                                                                  ║
-║  ┌─────────────────────────────────────────────────────────┐   ║
-║  │                     FRONTEND                            │   ║
-║  │         Next.js 16 · TypeScript · Zustand              │   ║
-║  │                                                         │   ║
-║  │   /home → /assignments → /create → /generating → /paper│   ║
-║  │                                                         │   ║
-║  │   State: Zustand (assignments, formData, status)        │   ║
-║  │   WS Client: socket.io-client → localhost:4000          │   ║
-║  └──────────────────────┬──────────────────────────────────┘   ║
-║                         │  HTTP REST + WebSocket               ║
-║  ┌──────────────────────▼──────────────────────────────────┐   ║
-║  │                     BACKEND                             │   ║
-║  │         Node.js · Express · TypeScript :4000           │   ║
-║  │                                                         │   ║
-║  │  POST /api/assignments   → queue job, return fast       │   ║
-║  │  GET  /api/assignments   → list all (Redis cached)      │   ║
-║  │  POST /api/upload        → multer saves to /uploads     │   ║
-║  │  POST /api/settings/llm  → switch AI provider           │   ║
-║  │  WS   notifyDone()       → emit 'paper:ready' event     │   ║
-║  └─────────┬────────────────────────┬───────────────────────┘  ║
-║            │                        │                           ║
-║  ┌─────────▼──────┐      ┌──────────▼──────────┐              ║
-║  │  MongoDB Atlas │      │    Redis Cloud       │              ║
-║  │                │      │                      │              ║
-║  │  assignments{} │      │  BullMQ job queue    │              ║
-║  │  papers{}      │      │  Paper cache (24h)   │              ║
-║  └────────────────┘      └──────────┬───────────┘              ║
-║                                     │                           ║
-║                          ┌──────────▼───────────┐              ║
-║                          │    BullMQ Worker      │              ║
-║                          │  (separate process)   │              ║
-║                          │                       │              ║
-║                          │  concurrency: 3 jobs  │              ║
-║                          │  retries: 3 attempts  │              ║
-║                          │  backoff: exponential │              ║
-║                          └──────────┬────────────┘              ║
-║                                     │                           ║
-║                          ┌──────────▼───────────┐              ║
-║                          │    RAG SERVICE        │              ║
-║                          │  Python Flask :5001   │              ║
-║                          │                       │              ║
-║                          │  pypdf extraction     │              ║
-║                          │  800-word chunking    │              ║
-║                          │  20k char context     │              ║
-║                          └──────────┬────────────┘              ║
-║                                     │                           ║
-║                    ┌────────────────┼──────────────┐            ║
-║                    ▼                ▼              ▼            ║
-║              Groq API         Gemini API     OpenAI API        ║
-║          (llama-3.3-70b)  (gemini-1.5-flash) (gpt-4o-mini)   ║
-║          DEFAULT / FREE    OPTIONAL           OPTIONAL         ║
-║                                                                  ║
-╚══════════════════════════════════════════════════════════════════╝
+╔══════════════════════════════════════════════════════════════════════╗
+║                       SYSTEM ARCHITECTURE                           ║
+╠══════════════════════════════════════════════════════════════════════╣
+║                                                                      ║
+║  ┌───────────────────────────────────────────────────────────────┐  ║
+║  │                        FRONTEND                               │  ║
+║  │              Next.js 16 · TypeScript · Zustand               │  ║
+║  │                    Deployed on Netlify                        │  ║
+║  │                                                               │  ║
+║  │  /home → /assignments → /create → /generating → /paper       │  ║
+║  │                                                               │  ║
+║  │  State: Zustand (assignments, formData, status)               │  ║
+║  │  WS Client: socket.io-client → Render Backend URL            │  ║
+║  └────────────────────────┬──────────────────────────────────────┘  ║
+║                           │  HTTP REST + WebSocket                  ║
+║  ┌────────────────────────▼──────────────────────────────────────┐  ║
+║  │                        BACKEND                                │  ║
+║  │           Node.js · Express · TypeScript                     │  ║
+║  │                  Deployed on Render                           │  ║
+║  │                                                               │  ║
+║  │  POST /api/assignments   → queue job, return fast             │  ║
+║  │  GET  /api/assignments   → list all (Redis cached)            │  ║
+║  │  POST /api/upload        → multer saves to /uploads           │  ║
+║  │  POST /api/settings/llm  → switch AI provider                 │  ║
+║  │  WS   notifyDone()       → emit 'paper:ready' event           │  ║
+║  └──────────┬──────────────────────────┬───────────────────────  ┘  ║
+║             │                          │                             ║
+║  ┌──────────▼─────────┐     ┌──────────▼──────────┐               ║
+║  │   MongoDB Atlas    │     │     Redis Cloud      │               ║
+║  │   (Free Tier)      │     │     (Free Tier)      │               ║
+║  │                    │     │                      │               ║
+║  │  assignments{}     │     │  BullMQ job queue    │               ║
+║  │  papers{}          │     │  Paper cache (24h)   │               ║
+║  └────────────────────┘     └──────────┬───────────┘               ║
+║                                        │                            ║
+║                             ┌──────────▼───────────┐               ║
+║                             │    BullMQ Worker      │               ║
+║                             │  (runs inside Render  │               ║
+║                             │   backend process)    │               ║
+║                             │                       │               ║
+║                             │  concurrency: 3 jobs  │               ║
+║                             │  retries: 3 attempts  │               ║
+║                             │  backoff: exponential │               ║
+║                             └──────────┬────────────┘               ║
+║                                        │                            ║
+║                             ┌──────────▼───────────┐               ║
+║                             │     RAG SERVICE       │               ║
+║                             │  Python Flask         │               ║
+║                             │  Deployed on Render   │               ║
+║                             │                       │               ║
+║                             │  pypdf extraction     │               ║
+║                             │  800-word chunking    │               ║
+║                             │  20k char context     │               ║
+║                             └──────────┬────────────┘               ║
+║                                        │                            ║
+║                     ┌──────────────────┼──────────────┐             ║
+║                     ▼                  ▼              ▼             ║
+║               Groq API          Gemini API       OpenAI API        ║
+║           (llama-3.3-70b)  (gemini-1.5-flash)  (gpt-4o-mini)     ║
+║           DEFAULT / FREE      OPTIONAL            OPTIONAL         ║
+║                                                                      ║
+╚══════════════════════════════════════════════════════════════════════╝
+```
+
+<br/>
+
+---
+
+## 🔄 Request Workflow — End to End
+
+```
+╔══════════════════════════════════════════════════════════════════════╗
+║                    END-TO-END REQUEST FLOW                          ║
+╠══════════════════════════════════════════════════════════════════════╣
+║                                                                      ║
+║  TEACHER (Browser)                                                   ║
+║      │                                                               ║
+║      │  1. Upload PDF  →  POST /api/upload                          ║
+║      │                         │                                     ║
+║      │                         ▼                                     ║
+║      │                  Render Backend                               ║
+║      │                  multer saves file                            ║
+║      │                  returns { fileId }                           ║
+║      │                                                               ║
+║      │  2. Submit form →  POST /api/assignments                      ║
+║      │                         │                                     ║
+║      │                         ▼                                     ║
+║      │                  Render Backend                               ║
+║      │                  saves assignment to MongoDB                  ║
+║      │                  pushes job → Redis (BullMQ)                  ║
+║      │                  returns { assignmentId }  ← fast response    ║
+║      │                                                               ║
+║      │  3. Open /generating page                                     ║
+║      │     Connects via WebSocket (socket.io)                        ║
+║      │                                                               ║
+║      │              ┌── BACKGROUND JOB STARTS ──────────────────┐   ║
+║      │              │                                            │   ║
+║      │              │  BullMQ Worker (inside Render backend)     │   ║
+║      │              │       │                                    │   ║
+║      │              │       │  4. POST → RAG Service (Render)    │   ║
+║      │              │       │      /extract  { fileId }          │   ║
+║      │              │       │           │                        │   ║
+║      │              │       │           ▼                        │   ║
+║      │              │       │      pypdf reads pages             │   ║
+║      │              │       │      splits into 800-word chunks   │   ║
+║      │              │       │      selects top 20k chars         │   ║
+║      │              │       │      returns { context }           │   ║
+║      │              │       │                                    │   ║
+║      │              │       │  5. Prompt Builder                 │   ║
+║      │              │       │      injects context + config      │   ║
+║      │              │       │      enforces JSON schema          │   ║
+║      │              │       │                                    │   ║
+║      │              │       │  6. POST → Groq API                │   ║
+║      │              │       │      llama-3.3-70b-versatile       │   ║
+║      │              │       │      temp 0.2, json_object mode    │   ║
+║      │              │       │      returns structured JSON       │   ║
+║      │              │       │                                    │   ║
+║      │              │       │  7. Response Parser                │   ║
+║      │              │       │      validates counts & schema     │   ║
+║      │              │       │      checks difficulty split       │   ║
+║      │              │       │                                    │   ║
+║      │              │       │  8. Save to MongoDB (papers{})     │   ║
+║      │              │       │     Cache in Redis (24h TTL)       │   ║
+║      │              │       │                                    │   ║
+║      │              │       │  9. WebSocket emit                 │   ║
+║      │              │       │     'paper:ready' { assignmentId } │   ║
+║      │              └───────┴────────────────────────────────────┘   ║
+║      │                                                               ║
+║      │  10. Browser receives 'paper:ready' event                     ║
+║      │      Redirects to /assignments/[id]/paper                     ║
+║      │                                                               ║
+║      │  11. GET /api/assignments/:id                                 ║
+║      │      Backend checks Redis cache first                         ║
+║      │      Falls back to MongoDB if cache miss                      ║
+║      │      Returns full paper JSON                                  ║
+║      │                                                               ║
+║      │  12. Teacher views formatted paper                            ║
+║      │      Downloads PDF (Puppeteer renders HTML → PDF)             ║
+║      │      OR clicks Regenerate → repeat from step 2                ║
+║      ▼                                                               ║
+║  ✅ Done — under 30 seconds total                                    ║
+║                                                                      ║
+╚══════════════════════════════════════════════════════════════════════╝
 ```
 
 <br/>
@@ -254,12 +344,15 @@ VedaForge was architected and built using a **4-agent system** running on Antigr
 | **AI (optional)** | GPT-4o Mini | Alternative provider |
 | **RAG** | Python Flask + pypdf | PDF text extraction + chunking |
 | **PDF Export** | Puppeteer | Print-quality paper download |
+| **Frontend Hosting** | Netlify | Static export, free tier |
+| **Backend Hosting** | Render | Node.js web service, free tier |
+| **RAG Hosting** | Render | Python web service, free tier |
 
 <br/>
 
 ---
 
-## 🚀 Quick Start
+## 🚀 Quick Start (Local Development)
 
 ### Prerequisites
 
@@ -285,6 +378,7 @@ MONGODB_URI=mongodb+srv://your_uri
 REDIS_URL=redis://your_redis_url:port
 PORT=4000
 FRONTEND_URL=http://localhost:3000
+RAG_SERVICE_URL=http://localhost:5001
 
 # Pick ONE of these — paste your key, set ACTIVE_LLM to match
 ACTIVE_LLM=groq
@@ -304,7 +398,7 @@ Create `vedaforge/frontend/.env.local`:
 NEXT_PUBLIC_BACKEND_URL=http://localhost:4000
 ```
 
-### 4. Start all services (4 terminals)
+### 4. Start all services (3 terminals)
 
 ```bash
 # Terminal 1 — RAG Service
@@ -313,18 +407,13 @@ pip install flask pypdf
 python app.py
 # ✅ Running on http://127.0.0.1:5001
 
-# Terminal 2 — Backend API
+# Terminal 2 — Backend API + Worker
 cd vedaforge/backend
 npm install
 npm run dev
 # ✅ VedaForge backend running on http://localhost:4000
 
-# Terminal 3 — BullMQ Worker
-cd vedaforge/backend
-npm run worker
-# ✅ Worker listening on queue: assignment-generation
-
-# Terminal 4 — Frontend
+# Terminal 3 — Frontend
 cd vedaforge/frontend
 npm install
 npm run dev
@@ -335,6 +424,57 @@ npm run dev
 
 ```
 http://localhost:3000
+```
+
+<br/>
+
+---
+
+## 🌍 Deployment
+
+### Frontend → Netlify
+
+```bash
+cd vedaforge/frontend
+npm run build
+# Upload the 'out' folder to Netlify via drag and drop
+# netlify.toml is already configured
+```
+
+### Backend → Render
+
+1. Go to [render.com](https://render.com)
+2. New → **Web Service** → Connect GitHub repo
+3. Select the `vedaforge/backend` folder as root
+4. Set **Build Command:** `npm install && npm run build`
+5. Set **Start Command:** `npm start`
+6. Add environment variables (see `.env` above — use your production URLs)
+7. Set `FRONTEND_URL` to your Netlify URL
+8. Set `RAG_SERVICE_URL` to your Render RAG service URL
+9. Deploy
+
+### RAG Service → Render
+
+1. Go to [render.com](https://render.com)
+2. New → **Web Service** → Connect GitHub repo
+3. Select the `vedaforge/rag-service` folder as root
+4. Set **Runtime:** Python 3
+5. Set **Build Command:** `pip install -r requirements.txt`
+6. Set **Start Command:** `python app.py`
+7. Deploy
+
+> ⚠️ **Important:** Render free tier services spin down after inactivity. The first request after a cold start may take ~30–50 seconds. Consider upgrading to a paid plan for production use, or use a cron job to ping the service every 10 minutes to keep it warm.
+
+### Environment variables for production (Render Backend)
+
+```env
+MONGODB_URI=mongodb+srv://your_atlas_uri
+REDIS_URL=redis://your_redis_cloud_url:port
+PORT=10000                                  # Render assigns this automatically
+FRONTEND_URL=https://your-app.netlify.app
+RAG_SERVICE_URL=https://your-rag-service.onrender.com
+ACTIVE_LLM=groq
+GROQ_API_KEY=your_groq_key
 ```
 
 <br/>
@@ -364,7 +504,7 @@ Step 10 →  Download as PDF or Regenerate
 
 ```
 vedaforge/
-├── frontend/                    # Next.js application
+├── frontend/                    # Next.js application (Netlify)
 │   ├── app/
 │   │   ├── assignments/         # Assignment list page
 │   │   │   ├── create/          # Create assignment form
@@ -378,7 +518,7 @@ vedaforge/
 │   ├── hooks/                   # useAssignmentSocket
 │   └── store/                   # Zustand state
 │
-├── backend/                     # Node.js Express API
+├── backend/                     # Node.js Express API (Render)
 │   └── src/
 │       ├── routes/              # API endpoints
 │       ├── models/              # MongoDB schemas
@@ -392,7 +532,7 @@ vedaforge/
 │       ├── config/              # Redis + cache
 │       └── websocket/           # Socket.io server
 │
-└── rag-service/                 # Python RAG microservice
+└── rag-service/                 # Python RAG microservice (Render)
     ├── app.py                   # Flask server
     └── requirements.txt
 ```
@@ -462,39 +602,8 @@ Class: ______  Section: ______
 | `POST` | `/api/assignments/:id/retry` | Retry failed generation |
 | `POST` | `/api/upload` | Upload PDF/image file |
 | `POST` | `/api/settings/llm` | Switch LLM provider |
-| `GET` | `RAG :5001/health` | RAG service health check |
-| `POST` | `RAG :5001/extract` | Extract + chunk PDF text |
-
-<br/>
-
----
-
-## 🌍 Deployment
-
-### Frontend → Netlify
-
-```bash
-cd vedaforge/frontend
-npm run build
-# Upload the 'out' folder to Netlify via drag and drop
-# netlify.toml is already configured
-```
-
-### Backend → Railway
-
-1. Go to [railway.app](https://railway.app)
-2. New Project → Deploy from GitHub
-3. Select `vedaforge/backend` folder
-4. Add environment variables
-5. Deploy
-
-### RAG Service → Railway / Render
-
-```bash
-# Render.com free tier works perfectly
-# Start command: python app.py
-# Port: 5001
-```
+| `GET` | `RAG /health` | RAG service health check |
+| `POST` | `RAG /extract` | Extract + chunk PDF text |
 
 <br/>
 
@@ -526,6 +635,9 @@ npm run build
 | PDF export via Puppeteer | ✅ |
 | Mobile responsive design | ✅ |
 | 4-agent Antigravity system | ✅ |
+| Deployed: Frontend on Netlify | ✅ |
+| Deployed: Backend on Render | ✅ |
+| Deployed: RAG Service on Render | ✅ |
 
 ---
 
@@ -549,6 +661,7 @@ MIT — free to use, modify, and distribute.
 
 ⭐ **Star this repo if VedaForge helped you**
 
+[![Live Demo](https://img.shields.io/badge/🚀_Live_Demo-vedaforge.netlify.app-00C7B7?style=for-the-badge&logo=netlify&logoColor=white)](https://vedaforge.netlify.app)
 [![GitHub](https://img.shields.io/badge/GitHub-callmegus4444%2FVedaForge-black?style=for-the-badge&logo=github)](https://github.com/callmegus4444/VedaForge)
 
 </div>
