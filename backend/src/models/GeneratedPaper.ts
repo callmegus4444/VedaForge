@@ -51,7 +51,35 @@ const PaperMetaSchema = new Schema<IPaperMeta>({
 const QuestionSchema = new Schema<IQuestion>({
   number:        { type: Number, required: true },
   text:          { type: String, required: true },
-  options:       { type: [String], default: null },
+  options: {
+    type: [String],
+    default: null,
+    set: function (val: any) {
+      // Case 1: already correct
+      if (Array.isArray(val) && typeof val[0] === "string") {
+        return val;
+      }
+
+      // Case 2: array of object → convert to string[]
+      if (Array.isArray(val) && typeof val[0] === "object") {
+        return Object.values(val[0]);
+      }
+
+      // Case 3: stringified JSON
+      if (typeof val === "string") {
+        try {
+          const parsed = JSON.parse(val);
+          if (Array.isArray(parsed) && typeof parsed[0] === "object") {
+            return Object.values(parsed[0]);
+          }
+        } catch (e) {
+          console.error("Failed to parse options string", e);
+        }
+      }
+
+      return null;
+    }
+  },
   correctOption: { type: String, default: null },
   modelAnswer:   { type: String, default: null },
   difficulty:    { type: String, enum: ['easy', 'moderate', 'hard'], required: true },
