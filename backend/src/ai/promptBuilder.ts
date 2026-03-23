@@ -6,6 +6,8 @@ export function buildPrompt(data: {
 
   const { questionTypes, instructions, fileContent } = data
   
+  console.log(`[BUILDER] FILE_TRACE_4: Entering promptBuilder. Received fileContent length: ${fileContent?.length || 0}`)
+
   const totalQuestions = questionTypes.reduce((s, q) => s + q.count, 0)
   const totalMarks = questionTypes.reduce((s, q) => s + (q.count * q.marks), 0)
   

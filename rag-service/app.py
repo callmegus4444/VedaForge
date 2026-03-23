@@ -129,9 +129,10 @@ def extract():
 
         elapsed = round(time.time() - start_time, 2)
         print(f"[RAG] ===== DONE in {elapsed}s =====")
+        print(f"[RAG] FILE_TRACE_2: Python saved to /tmp successfully. pypdf executed.")
         print(f"[RAG] Full text: {len(full_text)} chars")
         print(f"[RAG] Context: {len(context)} chars")
-        print(f"[RAG] Preview: {full_text[:400]}")
+        print(f"[RAG] Text Preview (first 200 chars): {full_text[:200]}")
 
         return jsonify({
             'success': True,

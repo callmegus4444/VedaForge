@@ -5,12 +5,20 @@ import { parseResponse } from './responseParser'
 export async function generateQuestionPaper(data: any) {
   console.log('[AI] ===== LLM CALL START =====')
   console.log('[AI] questionTypes:', JSON.stringify(data.questionTypes))
-  console.log('[AI] fileContent length:', data.fileContent?.length || 0)
+  
+  const ctxLen = data.fileContent?.length || 0;
+  console.log(`[AI] FILE_TRACE_3: fileContent received in generator. Length: ${ctxLen} chars`)
+  if (ctxLen > 0) {
+    console.log(`[AI] FILE_TRACE_3.1: Extracted text snippet preview: ${(data.fileContent as string).slice(0, 200)}`)
+  } else {
+    console.log(`[AI] FILE_TRACE_3.1: WARNING! Extracted text is EMPTY or UNDEFINED!`)
+  }
+
   console.log('[AI] instructions:', data.instructions)
   
   const prompt = buildPrompt(data)
-  console.log('[AI] prompt length:', prompt.length)
-  console.log('[AI] prompt preview:', prompt.slice(0, 600))
+  console.log(`[AI] FILE_TRACE_5: Final assembled LLM Prompt Length: ${prompt.length} chars`)
+  console.log('[AI] prompt preview:', prompt.slice(0, 300))
   
   console.log('[AI] Sending to LLM...')
   const startTime = Date.now()
@@ -19,7 +27,7 @@ export async function generateQuestionPaper(data: any) {
 
   const elapsed = Date.now() - startTime
   console.log(`[AI] LLM responded in ${elapsed}ms`)
-  console.log('[AI] raw response length:', raw.length)
+  console.log(`[AI] FILE_TRACE_6: LLM raw response length: ${raw.length} chars`)
   console.log('[AI] raw preview:', raw.slice(0, 400))
 
   const parsed = parseResponse(raw)

@@ -25,6 +25,9 @@ export async function extractFileText(
     throw new Error(`File not found: ${cleanPath}`)
   }
 
+  const stats = fs.statSync(absolutePath)
+  console.log(`[EXTRACT] FILE_TRACE_1: Preparing file [${fileName}] Size: [${stats.size} bytes]`)
+
   console.log('[EXTRACT] Calling RAG... URL:', `${RAG_URL}/extract`)
   
   const formData = new FormData();
