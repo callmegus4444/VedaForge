@@ -1,0 +1,70 @@
+
+> frontend@0.1.0 build
+> next build
+
+⚠ Warning: Next.js inferred your workspace root, but it may not be correct.
+ We detected multiple lockfiles and selected the directory of D:\package-lock.json as the root directory.
+ To silence this warning, set `turbopack.root` in your Next.js config, or consider removing one of the lockfiles if it's not needed.
+   See https://nextjs.org/docs/app/api-reference/config/next-config-js/turbopack#root-directory for more information.
+ Detected additional lockfiles: 
+   * D:\ALL PROJECTS\vedaforge\frontend\package-lock.json
+
+▲ Next.js 16.2.0 (Turbopack)
+- Environments: .env.local
+
+  Creating an optimized production build ...
+
+> Build error occurred
+Error: Turbopack build failed with 2 errors:
+./ALL PROJECTS/vedaforge/frontend/app/assignments/[id]/generating/page.tsx:7:8
+Next.js can't recognize the exported `generateStaticParams` field in route. App pages cannot use both "use client" and export function "generateStaticParams()".
+  [90m 5 |[0m [36mimport[0m { useAssignmentSocket } [36mfrom[0m [32m"@/hooks/useAssignmentSocket"[0m;
+  [90m 6 |[0m
+[31m[1m>[0m [90m 7 |[0m [36mexport[0m [36mfunction[0m generateStaticParams() { [36mreturn[0m []; }
+  [90m   |[0m        [31m[1m^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^[0m
+  [90m 8 |[0m
+  [90m 9 |[0m [36mexport[0m [36mdefault[0m [36mfunction[0m [33mGeneratingPage[0m({
+  [90m10 |[0m   params,
+
+The exported configuration object in a source file needs to have a very specific format from which some properties can be statically parsed at compiled-time.
+
+Import traces:
+  Client Component Browser:
+    ./ALL PROJECTS/vedaforge/frontend/app/assignments/[id]/generating/page.tsx [Client Component Browser]
+    ./ALL PROJECTS/vedaforge/frontend/app/assignments/[id]/generating/page.tsx [Server Component]
+
+  Client Component SSR:
+    ./ALL PROJECTS/vedaforge/frontend/app/assignments/[id]/generating/page.tsx [Client Component SSR]
+    ./ALL PROJECTS/vedaforge/frontend/app/assignments/[id]/generating/page.tsx [Server Component]
+
+https://nextjs.org/docs/app/api-reference/file-conventions/route-segment-config
+
+
+./ALL PROJECTS/vedaforge/frontend/app/assignments/[id]/paper/page.tsx:7:8
+Next.js can't recognize the exported `generateStaticParams` field in route. App pages cannot use both "use client" and export function "generateStaticParams()".
+  [90m 5 |[0m [36mimport[0m { [33mArrowLeft[0m, [33mDownload[0m, [33mRefreshCw[0m, [33mPrinter[0m } [36mfrom[0m [32m"lucide-react"[0m;
+  [90m 6 |[0m
+[31m[1m>[0m [90m 7 |[0m [36mexport[0m [36mfunction[0m generateStaticParams() { [36mreturn[0m []; }
+  [90m   |[0m        [31m[1m^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^[0m
+  [90m 8 |[0m
+  [90m 9 |[0m [36mconst[0m [33mAPI[0m = process.env.[33mNEXT_PUBLIC_BACKEND_URL[0m ?? [32m"http://localhost:4000"[0m;
+  [90m10 |[0m
+
+The exported configuration object in a source file needs to have a very specific format from which some properties can be statically parsed at compiled-time.
+
+Import traces:
+  Client Component Browser:
+    ./ALL PROJECTS/vedaforge/frontend/app/assignments/[id]/paper/page.tsx [Client Component Browser]
+    ./ALL PROJECTS/vedaforge/frontend/app/assignments/[id]/paper/page.tsx [Server Component]
+
+  Client Component SSR:
+    ./ALL PROJECTS/vedaforge/frontend/app/assignments/[id]/paper/page.tsx [Client Component SSR]
+    ./ALL PROJECTS/vedaforge/frontend/app/assignments/[id]/paper/page.tsx [Server Component]
+
+https://nextjs.org/docs/app/api-reference/file-conventions/route-segment-config
+
+
+    at <unknown> (./ALL PROJECTS/vedaforge/frontend/app/assignments/[id]/generating/page.tsx:7:8)
+    at <unknown> (https://nextjs.org/docs/app/api-reference/file-conventions/route-segment-config)
+    at <unknown> (./ALL PROJECTS/vedaforge/frontend/app/assignments/[id]/paper/page.tsx:7:8)
+    at <unknown> (https://nextjs.org/docs/app/api-reference/file-conventions/route-segment-config)
