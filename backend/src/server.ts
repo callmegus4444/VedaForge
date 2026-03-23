@@ -2,6 +2,7 @@ import 'dotenv/config';
 import http from 'http';
 import express from 'express';
 import cors from 'cors';
+import './workers/generationWorker';
 import mongoose from 'mongoose';
 import path from 'path';
 
