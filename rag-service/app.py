@@ -76,16 +76,16 @@ def health():
 def extract():
     start_time = time.time()
     
-    data = request.get_json(force=True, silent=True)
-    if not data:
-        return jsonify({ 'success': False, 'error': 'Invalid JSON body' }), 400
+    file = request.files.get("file")
+    if not file:
+        return jsonify({ 'success': False, 'error': 'No file uploaded' }), 400
 
-    file_path = data.get('filePath', '').replace('\\', '/')
+    # Save temporarily
+    file_path = f"/tmp/{file.filename}"
+    file.save(file_path)
+    
     print(f"\n[RAG] ===== NEW REQUEST =====")
     print(f"[RAG] File path: {file_path}")
-    
-    if not file_path:
-        return jsonify({ 'success': False, 'error': 'filePath required' }), 400
 
     if not os.path.exists(file_path):
         print(f"[RAG] ERROR: File does not exist at: {file_path}")

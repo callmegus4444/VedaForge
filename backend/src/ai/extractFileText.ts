@@ -1,6 +1,7 @@
 import path from 'path'
 import fs from 'fs'
 import axios from 'axios'
+import FormData from 'form-data'
 
 const RAG_URL = process.env.RAG_SERVICE_URL || 
                 'http://127.0.0.1:5001'
@@ -25,14 +26,16 @@ export async function extractFileText(
   }
 
   console.log('[EXTRACT] Calling RAG... URL:', `${RAG_URL}/extract`)
-  console.log('[EXTRACT] Request Payload:', JSON.stringify({ filePath: cleanPath }))
   
+  const formData = new FormData();
+  formData.append('file', fs.createReadStream(cleanPath));
+
   try {
     const response = await axios.post(
       `${RAG_URL}/extract`,
-      { filePath: cleanPath },
+      formData,
       { 
-        headers: { 'Content-Type': 'application/json' },
+        headers: formData.getHeaders(),
         timeout: 120000 
       }
     )
